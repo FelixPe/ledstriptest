@@ -81,10 +81,11 @@ void setup() {
   TCCR1B &= ~_BV(CS12);
   initBitlash(38400);     // must be first to initialize serial port
   
-  assignVar('p'-'a', pause);
-  assignVar('h'-'a', 40);
-  assignVar('d'-'a',fadedelay);
-  assignVar('r'-'a',5000);
+  assignVar('p'-'a', pause); // delay to turn-off
+  assignVar('h'-'a', 40); // brightness
+  assignVar('d'-'a',fadedelay); // fadedelay
+  assignVar('r'-'a',5000); // random delay
+  assignVar('c'-'a',0); // candle mode
   
   addBitlashFunction("scol", (bitlash_function)setColor);
   addBitlashFunction("fade", (bitlash_function)fade);
