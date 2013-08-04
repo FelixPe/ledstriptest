@@ -7,6 +7,12 @@ int pinRed = 3;
 int pinGreen = 6;
 int pinBlue = 9;
 
+// NRF24L01-Pins
+// IRQ - D2
+// CE  - D7
+// CSN - D10 / SS
+
+
 int pinLight = A6;  // the analog pin connected to the light sensor
 int pinPir = 8;    //the digital pin connected to the PIR sensor's output
 int pinLed = 13;    // onboard LED as debug output
@@ -79,7 +85,7 @@ void setStep(){
 
 void setup() {
   TCCR1B &= ~_BV(CS12);
-  initBitlash(38400);     // must be first to initialize serial port
+  initBitlash(57600);     // must be first to initialize serial port
   
   assignVar('p'-'a', pause); // delay to turn-off
   assignVar('h'-'a', 40); // brightness
@@ -87,10 +93,8 @@ void setup() {
   assignVar('r'-'a',5000); // random delay
   assignVar('c'-'a',0); // candle mode
   
-  addBitlashFunction("scol", (bitlash_function)setColor);
+  addBitlashFunction("sc", (bitlash_function)setColor);
   addBitlashFunction("fade", (bitlash_function)fade);
-  doCommand("function chgcol {scol(random(255),random(255),random(255));}");
-  doCommand("function candle {d=5+random(20); scol(random(64)+192,32+random(32),16+random(16)); r=250+random(250);}");
   
   
   pinMode(pinPir, INPUT);
@@ -135,8 +139,9 @@ void loop() {
        if(lockStatus < bright){  
          helligkeit = analogRead(pinLight); // Helligkeitssensor auslesen
          if(lockStatus == dawn || helligkeit < getVar('h'-'a')){
-           setColorRGB(240,192,112);
-           digitalWrite(pinLed, HIGH);   //the led visualizes the sensors output pin state
+           //setColorRGB(240,192,112);
+           doCommand("on()");
+		   digitalWrite(pinLed, HIGH);   //the led visualizes the sensors output pin state
            //makes sure we wait for a transition to LOW before any further output is made:
            lockStatus = bright; // State-Change last
          }         
@@ -155,16 +160,16 @@ void loop() {
        //if the sensor is low for more than the given pause, 
        //we assume that no more motion is going to happen
        if(lockStatus == bright && millis() - lowIn > getVar('p'-'a')/2){  
-           setColorRGB(192,96,48);
-           
+           //setColorRGB(192,96,48);
+           doCommand("un()");
            //makes sure this block of code is only executed again after 
            //a new motion sequence has been detected
            lockStatus = dawn; 
         }
         
         if(lockStatus == dawn  && millis() - lowIn > getVar('p'-'a')){  
-           setColorRGB(0,0,0);
-           
+           //setColorRGB(0,0,0);
+           doCommand("off()");
            //makes sure this block of code is only executed again after 
            //a new motion sequence has been detected
            lockStatus = dark;  
